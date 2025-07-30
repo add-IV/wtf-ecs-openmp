@@ -1,0 +1,7 @@
+*~
+*.d
+*.o
+*.s
+*.exe
+compile_commands.json
+/.gdb_history
