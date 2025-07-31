@@ -1,5 +1,5 @@
 # NOTE: for release build use gcc & mold at -O2
-CC := clang -std=c17
+CC := clang -std=gnu17
 ifeq ($(OS),Windows_NT)
 	# CC := clang -std=gnu99
 	RE := rg
@@ -7,9 +7,9 @@ else
 	# CC := gcc -std=gnu99
 	RE := grep
 endif
-CFLAGS := -Wall -Wextra -Wno-int-conversion -fpermissive -fdiagnostics-show-option -ggdb -O0
-# CFLAGS := -Wall -Wextra -Wno-int-conversion -fpermissive -fdiagnostics-show-option -O2
-LIBS :=
+# CFLAGS := -Wall -Wextra -Wno-int-conversion -fpermissive -fdiagnostics-show-option -ggdb -O0
+CFLAGS := -Wall -Wextra -Wno-int-conversion -fpermissive -fdiagnostics-show-option -O2
+LIBS := -lpthread
 LDFLAGS := -fuse-ld=lld -flto -static
 SRC := $(wildcard src/*.c)
 SRC += $(wildcard src/*/*.c)
@@ -17,12 +17,12 @@ OBJ := $(patsubst src/%.c,obj/%.o,$(SRC))
 
 .PHONY: default dependencies clean clean-dep clean-emacs clean-all dep_dirs obj_dirs lsp-test tests
 
-default: ez-testing
+default: tests
 
-ez-testing: $(OBJ)
+tests: $(OBJ)
 	$(CC) $(CFLAGS) -o $@ $^ $(LIBS) $(LDFLAGS)
 
-test: ez-testing
+test: tests
 	${CURDIR}/$<
 
 obj/%.o: src/%.c dep/%.d | obj_dirs
@@ -33,23 +33,23 @@ dependencies: $(DEP)
 dep/%.d: src/%.c | dep_dirs
 	$(CC) -MM -MP -MT obj/$*.o -MF $@ $< $(LIBS)
 
-include $(wildcard dep/*.d)
+# include $(wildcard dep/*.d)
 include $(wildcard dep/*/*.d)
 
 dep_dirs:
 	@mkdir -p dep/
-	@mkdir -p dep/gdscript
 	@mkdir -p dep/allocators
 
 obj_dirs:
 	@mkdir -p obj/
-	@mkdir -p obj/gdscript
 	@mkdir -p obj/allocators
 
 clean:
+	echo "cleaning"
 	rm -rf *.o obj/*.o *.exe tarragon
 
 clean-dep:
+	echo "cleaning dependency dir"
 	rm -rf dep/*.d
 
 clean-emacs:

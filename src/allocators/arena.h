@@ -14,9 +14,9 @@ typedef struct arena_t
 extern "C" {
 #endif
 
-void arena_init(arena_t* arena, uint32_t size);
-void* arena_alloc(arena_t* arena, uint32_t size);
-void* arena_scratch(arena_t* arena, uint32_t size);
+void arena_init(arena_t* arena, int32_t size);
+void* arena_alloc(arena_t* arena, int32_t size);
+void* arena_scratch(arena_t* arena, int32_t size);
 void arena_free_all(arena_t* arena);
 
 #ifdef __cplusplus

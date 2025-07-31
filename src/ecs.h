@@ -4,10 +4,11 @@
 #include <stdint.h>
 #include "components.h"
 
-#define ENTITY_CAP 65535
+#define ENTITY_CAP 1048456
+/* #define ENTITY_CAP 65536 */
 /* #define ENTITY_CAP 1024 */
 
-typedef enum __attribute__((packed)) component_t {
+    typedef enum __attribute__((packed)) component_t {
 #define X(A,...) A,
       COMPONENTS
 #undef X
@@ -34,5 +35,17 @@ COMPONENTS
 #undef X
 
 int32_t single_thread_tick(ecs_table_t* ecs_table, const float delta);
+
+int32_t single_thread_tick_alt(ecs_table_t* ecs_table, const float delta);
+
+int32_t multi_thread_tick(ecs_table_t* ecs_table, const float delta, const int32_t num_threads);
+
+int32_t multi_thread_tick2(ecs_table_t* ecs_table, const float delta, const int32_t num_threads);
+
+int32_t multi_pthread_tick(ecs_table_t* ecs_table, const float delta, const int32_t num_threads);
+
+int32_t multi_thread_tick_alt(ecs_table_t* ecs_table, const float delta, const int32_t num_threads);
+
+int32_t multi_thread_tick_other_alt(ecs_table_t* ecs_table, const float delta, const int32_t num_threads);
 
 #endif /* End ECS_H */

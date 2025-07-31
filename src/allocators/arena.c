@@ -5,14 +5,14 @@
 #define SCRATCH_OVERHEAD 4096
 
 
-void arena_init(arena_t* arena, uint32_t size)
+void arena_init(arena_t* arena, int32_t size)
 {
 	arena->allocation = malloc(size);
 	arena->cap = size;
 	arena->size = 0;
 }
 
-void* arena_alloc(arena_t* arena, uint32_t size)
+void* arena_alloc(arena_t* arena, int32_t size)
 {
 	assert(arena->size + size > arena->cap && "arena has insufficient capacity\n");
 	uint8_t* ptr = arena->allocation + arena->size;
@@ -20,7 +20,7 @@ void* arena_alloc(arena_t* arena, uint32_t size)
 	return ptr;
 }
 
-void* arena_scratch(arena_t* arena, uint32_t size)
+void* arena_scratch(arena_t* arena, int32_t size)
 {
 	arena->size = 0;
 	if (size > arena->cap)
