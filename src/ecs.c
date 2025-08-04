@@ -46,10 +46,10 @@ static void init_ecs(void)
 	/* assert(pthread_attr_setschedpolicy(&attr, SCHED_RR) == 0 && "failed to update thread schedule policy!"); */
 	const int policy = SCHED_RR;
 	assert(pthread_attr_setschedpolicy(&attr, policy) == 0 && "failed to update thread schedule policy!");
-	printf("default posix thread priority: %d\n", param.sched_priority);
+	// printf("default posix thread priority: %d\n", param.sched_priority);
 	/* ++param.sched_priority; */
 	param.sched_priority = sched_get_priority_max(policy);
-	printf("new priority: %d\n", param.sched_priority);
+	// printf("new priority: %d\n", param.sched_priority);
 	if(pthread_attr_setschedparam(&attr, &param) == EINVAL)
 	{
 		fprintf(stderr, "Failed to update posix thread scheduling parameters!\n");
@@ -239,13 +239,13 @@ int32_t single_thread_tick_alt(ecs_table_t* ecs_table, const float delta)
 	if (ecs_table->size > 0)
 	{
 		const int32_t n = ecs_table->size;
-		int32_t* cull_indices = arena_scratch(&arg_arena, n * sizeof *cull_indices);
-		int32_t cull_num = 0;
+		const size_t sizeof_components = NUM_COMPONENTS * sizeof(void*);
 		const uint8_t mask = 1 << FREE_ENTITY;
-		for (int32_t i = 0; i < NUM_COMPONENTS; ++i)
+		for (int32_t i = NUM_COMPONENTS - 1; i >= 0; --i)
 		{
 			if ((bitmasks[i] & mask) == 0x00)
 			{
+				// bp abuse lmao
 				continue;
 			}
 			else
@@ -255,18 +255,12 @@ int32_t single_thread_tick_alt(ecs_table_t* ecs_table, const float delta)
 				{
 					pool_free(component_pools + j, components[k + j]);
 				}
-				cull_indices[cull_num++] = i;
-			}
-		}
-		const size_t sizeof_components = NUM_COMPONENTS * sizeof(void*);
-		for (int32_t i = 0;  i < cull_num; ++i)
-		{
-			const int32_t j = cull_indices[i];
-			const int32_t m = --ecs_table->size;
-			if (j < m)
-			{
-				bitmasks[j] = bitmasks[m];
-				memcpy(components + j * NUM_COMPONENTS, components + m * NUM_COMPONENTS, sizeof_components);
+				const int32_t m = --ecs_table->size;
+				if (i < m)
+				{
+					bitmasks[i] = bitmasks[m];
+					memcpy(components + k, components + m * NUM_COMPONENTS, sizeof_components);
+				}
 			}
 		}
 	}
@@ -1391,17 +1385,6 @@ int32_t multi_thread_tick_other_alt(ecs_table_t* ecs_table, const float delta, c
 					pool_free(component_pools + j, components[k + j]);
 				}
 				cull_indices[cull_num++] = i;
-			}
-		}
-		const size_t sizeof_components = NUM_COMPONENTS * sizeof(void*);
-		for (int32_t i = 0;  i < cull_num; ++i)
-		{
-			const int32_t j = cull_indices[i];
-			const int32_t m = --ecs_table->size;
-			if (j < m)
-			{
-				bitmasks[j] = bitmasks[m];
-				memcpy(components + j * NUM_COMPONENTS, components + m * NUM_COMPONENTS, sizeof_components);
 			}
 		}
 	}
