@@ -241,7 +241,7 @@ int32_t single_thread_tick_alt(ecs_table_t* ecs_table, const float delta)
 		const int32_t n = ecs_table->size;
 		const size_t sizeof_components = NUM_COMPONENTS * sizeof(void*);
 		const uint8_t mask = 1 << FREE_ENTITY;
-		for (int32_t i = NUM_COMPONENTS - 1; i >= 0; --i)
+		for (int32_t i = n; i >= 0; --i)
 		{
 			if ((bitmasks[i] & mask) == 0x00)
 			{
@@ -1370,7 +1370,7 @@ int32_t multi_thread_tick_other_alt(ecs_table_t* ecs_table, const float delta, c
 		const int32_t n = ecs_table->size;
 		const size_t sizeof_components = NUM_COMPONENTS * sizeof(void*);
 		const uint8_t mask = 1 << FREE_ENTITY;
-		for (int32_t i = NUM_COMPONENTS - 1; i >= 0; --i)
+		for (int32_t i = n; i >= 0; --i)
 		{
 			if ((bitmasks[i] & mask) == 0x00)
 			{
