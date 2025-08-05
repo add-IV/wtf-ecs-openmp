@@ -1198,7 +1198,8 @@ static int thicc_funcc(void* args)
 	int32_t swap = 0;
 	position_t* position = scratch_alloc(scratch_offset, num * sizeof(position_t));
 	velocity_t* velocity = scratch_alloc(scratch_offset + 1, num * sizeof(velocity_t));
-	for (int32_t i = i0; i < num; ++i)
+	/* for (int32_t i = i0; i < num; ++i) // THIS IS THE PROBLEM!!! */
+	for (int32_t i = i0; i < n; ++i)
 	{
 		if ((bitmasks[i] & mask) == mask)
 		{
@@ -1215,7 +1216,7 @@ static int thicc_funcc(void* args)
 		position[i].z += tick_delta * v.z;
 	}
 	swap = 0;
-	for (int32_t i = i0; i < num; ++i)
+	for (int32_t i = i0; i < n; ++i)
 	{
 		if ((bitmasks[i] & mask) == mask)
 		{
@@ -1227,7 +1228,7 @@ static int thicc_funcc(void* args)
 	mask = 1 << LIFETIME;
 	swap = 0;
 	lifetime_t* lifetime = scratch_alloc(scratch_offset, num * sizeof(lifetime_t));
-	for (int32_t i = i0; i < num; ++i)
+	for (int32_t i = i0; i < n; ++i)
 	{
 		if (bitmasks[i] & mask)
 		{
@@ -1240,7 +1241,7 @@ static int thicc_funcc(void* args)
 		lifetime[i].value -= tick_delta;
 	}
 	swap = 0;
-	for (int32_t i = i0; i < num; ++i)
+	for (int32_t i = i0; i < n; ++i)
 	{
 		if (bitmasks[i] & mask)
 		{
@@ -1331,14 +1332,13 @@ static int the_funk(void* args)
 	const span_t* span = args;
 	const int32_t i0 = span->i;
 	const int32_t n = span->n;
-	const int32_t scratch_offset = span->scratch;
 	const ecs_table_t* ecs_table = span->ecs_table;
 	void** components = ecs_table->components;
 	uint8_t* bitmasks = ecs_table->bitmasks;
 	const int32_t num = ecs_table->size;
 	const uint8_t pos_mask = (1 << POSITION) | (1 << VELOCITY);
 	const uint8_t life_mask = (1 << LIFETIME);
-	for (int32_t i = i0; i < num; ++i)
+	for (int32_t i = i0; i < n; ++i)
 	{
 		if ((bitmasks[i] & pos_mask) == pos_mask)
 		{
@@ -1355,6 +1355,7 @@ static int the_funk(void* args)
 			bitmasks[i] |= (l->bits >> 31) << FREE_ENTITY;
 		}
 	}
+	return 0;
 }
 
 
@@ -1398,11 +1399,10 @@ int32_t multi_thread_tick_other_alt(ecs_table_t* ecs_table, const float delta, c
 		tick_delta = delta;
 		const int32_t n = ecs_table->size;
 		span_t* spans = alloca(num_threads * sizeof *spans);
-		set_spans(spans, num_threads, ecs_table->size);
+		set_spans(spans, num_threads, n);
 		for (int8_t i = 0; i < num_threads; ++i)
 		{
 			spans[i].ecs_table = ecs_table;
-			spans[i].scratch = 2 * i;
 			thrd_create(threads + i, the_funk, spans + i);
 		}
 		for (int8_t i = 0; i < num_threads; ++i)

@@ -4,8 +4,8 @@
 #include <stdint.h>
 #include "components.h"
 
-#define ENTITY_CAP 1048456
-/* #define ENTITY_CAP 65536 */
+// #define ENTITY_CAP 1048456
+#define ENTITY_CAP 65536
 /* #define ENTITY_CAP 1024 */
 
     typedef enum __attribute__((packed)) component_t {
