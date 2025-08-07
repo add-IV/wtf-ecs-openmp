@@ -16,6 +16,7 @@
 #define POSIXTHREADS
 #define ALT_THREAD
 #define OTHER_ALT_THREAD
+#define OpenMP
 
 /* #define N 100000 */
 #define N 10000
@@ -291,6 +292,39 @@ int main(int argc, char** argv)
 	ecs_table.size = 0;
 	ecs_free_all();
 	#endif
+
+	#ifdef OpenMP
+	// OpenMP
+	num_active = 0;
+	sum = 0;
+	#ifdef _WIN32
+	QueryPerformanceCounter(&start);
+	#else
+	start = times(NULL);
+	#endif
+	for (int32_t i = 0; i < N; ++i)
+	{
+		sum += delta;
+		for (; sum > spawn_freq && num_active < num_total; sum -= spawn_freq)
+		{
+			spawn_projectile(&ecs_table, &position0, &velocity0, lifetime0);
+			++num_active;
+		}
+            num_active = openmp_tick(&ecs_table, delta);
+        }
+	#ifdef _WIN32
+	QueryPerformanceCounter(&end);
+	printf("openmp: %fs\n", (double)(end.QuadPart - start.QuadPart)  / clock_freq.QuadPart);
+	#else
+	end = times(NULL);
+	printf("other alt multi-threaded: %fs\n", (double)(end - start) / clock_freq);
+	#endif
+	printf("ecs_table.size: %d\n", ecs_table.size);
+	fflush(stdout);
+	ecs_table.size = 0;
+	ecs_free_all();
+	#endif
+
 
 	return 0;
 }

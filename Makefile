@@ -1,5 +1,5 @@
 # NOTE: for release build use gcc & mold at -O2
-CC := clang -std=gnu17
+CC := gcc -std=gnu17
 ifeq ($(OS),Windows_NT)
 	# CC := clang -std=gnu99
 	RE := rg
@@ -8,7 +8,7 @@ else
 	RE := grep
 endif
 # CFLAGS := -Wall -Wextra -Wno-int-conversion -fpermissive -fdiagnostics-show-option -ggdb -O0
-CFLAGS := -Wall -Wextra -Wno-int-conversion -fpermissive -fdiagnostics-show-option -O2
+CFLAGS := -Wall -Wextra -Wno-int-conversion -fpermissive -fdiagnostics-show-option -fopenmp -O2
 LIBS := -lpthread
 LDFLAGS := -fuse-ld=lld -flto -static
 SRC := $(wildcard src/*.c)

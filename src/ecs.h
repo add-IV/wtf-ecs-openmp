@@ -48,4 +48,6 @@ int32_t multi_thread_tick_alt(ecs_table_t* ecs_table, const float delta, const i
 
 int32_t multi_thread_tick_other_alt(ecs_table_t* ecs_table, const float delta, const int32_t num_threads);
 
+int32_t openmp_tick(ecs_table_t *ecs_table, const float delta);
+
 #endif /* End ECS_H */

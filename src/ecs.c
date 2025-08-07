@@ -1424,6 +1424,7 @@ int32_t openmp_tick(ecs_table_t *ecs_table, const float delta) {
     const int32_t n = ecs_table->size;
     const size_t sizeof_components = NUM_COMPONENTS * sizeof(void *);
     const uint8_t mask = 1 << FREE_ENTITY;
+#pragma omp parallel for
     for (int32_t i = n - 1; i >= 0; --i) {
       if ((bitmasks[i] & mask) == 0x00) {
         // bp abuse lmao
@@ -1446,6 +1447,7 @@ int32_t openmp_tick(ecs_table_t *ecs_table, const float delta) {
     const int32_t n = ecs_table->size;
     const uint8_t pos_mask = (1 << POSITION) | (1 << VELOCITY);
     const uint8_t l_mask = 1 << LIFETIME;
+#pragma omp parallel for
     for (int32_t i = 0; i < n; ++i) {
       if ((bitmasks[i] & pos_mask) == pos_mask) {
         position_t *p = components[i * NUM_COMPONENTS + POSITION];
