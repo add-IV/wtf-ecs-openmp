@@ -1412,3 +1412,54 @@ int32_t multi_thread_tick_other_alt(ecs_table_t* ecs_table, const float delta, c
 	}
 	return ecs_table->size;
 }
+
+/***********************/
+/* Just use OpenMP lol */
+/***********************/
+
+int32_t openmp_tick(ecs_table_t *ecs_table, const float delta) {
+  uint8_t *bitmasks = ecs_table->bitmasks;
+  void **components = ecs_table->components;
+  if (ecs_table->size > 0) {
+    const int32_t n = ecs_table->size;
+    const size_t sizeof_components = NUM_COMPONENTS * sizeof(void *);
+    const uint8_t mask = 1 << FREE_ENTITY;
+    for (int32_t i = n - 1; i >= 0; --i) {
+      if ((bitmasks[i] & mask) == 0x00) {
+        // bp abuse lmao
+        continue;
+      } else {
+        const int32_t k = i * NUM_COMPONENTS;
+        for (int8_t j = 0; j < NUM_COMPONENTS; ++j) {
+          pool_free(component_pools + j, components[k + j]);
+        }
+        const int32_t m = --ecs_table->size;
+        if (i < m) {
+          bitmasks[i] = bitmasks[m];
+          memcpy(components + k, components + m * NUM_COMPONENTS,
+                 sizeof_components);
+        }
+      }
+    }
+  }
+  if (ecs_table->size > 0) {
+    const int32_t n = ecs_table->size;
+    const uint8_t pos_mask = (1 << POSITION) | (1 << VELOCITY);
+    const uint8_t l_mask = 1 << LIFETIME;
+    for (int32_t i = 0; i < n; ++i) {
+      if ((bitmasks[i] & pos_mask) == pos_mask) {
+        position_t *p = components[i * NUM_COMPONENTS + POSITION];
+        velocity_t v = *(velocity_t *)components[i * NUM_COMPONENTS + VELOCITY];
+        p->x += delta * v.x;
+        p->y += delta * v.y;
+        p->z += delta * v.z;
+      }
+      if (bitmasks[i] & l_mask) {
+        lifetime_t *l = components[i * NUM_COMPONENTS + LIFETIME];
+        l->value -= delta;
+        bitmasks[i] |= (l->bits >> 31) << FREE_ENTITY;
+      }
+    }
+  }
+  return ecs_table->size;
+}
