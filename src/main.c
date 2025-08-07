@@ -317,7 +317,7 @@ int main(int argc, char** argv)
 	printf("openmp: %fs\n", (double)(end.QuadPart - start.QuadPart)  / clock_freq.QuadPart);
 	#else
 	end = times(NULL);
-	printf("other alt multi-threaded: %fs\n", (double)(end - start) / clock_freq);
+	printf("openmp: %fs\n", (double)(end - start) / clock_freq);
 	#endif
 	printf("ecs_table.size: %d\n", ecs_table.size);
 	fflush(stdout);
