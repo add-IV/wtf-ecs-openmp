@@ -2,7 +2,7 @@
 
 just use openmp
 
-two lines to get 5x speedup (line 1427 and 1450 in ecs.c)
+two lines to get 5x speedup (line 1427 and 1450 in [ecs.c](src/ecs.c#L1427))
 
 smh
 
